@@ -1,0 +1,37 @@
+clear
+*SET STEP on
+LOCAL factura as Object, itemArt as Object, err as Exception
+factura = NEWOBJECT("Factura", "factura.prg")
+
+printState(factura)
+? "------------------------------------------------------"
+factura.puntoVenta = 1
+printState(factura)
+? "------------------------------------------------------"
+factura.letra = 'A'
+printState(factura)
+? "------------------------------------------------------"
+factura.numero = 2300000
+printState(factura)
+? "------------------------------------------------------"
+factura.fecha = CTOD("22/06/1995")
+printState(factura)
+
+* --------------------------
+
+PROCEDURE printState(factura as Object)
+	? "total: " + transform(factura.total)
+	? "puntoVenta: " + transform(factura.puntoVenta )
+	? "letra: " + transform(factura.letra)
+	? "numero: " + transform(factura.numero)
+	? "fecha: " + transform(factura.fecha)
+	? "detalleArticulos type: " + transform(TYPE("factura.detalleArticulos"))
+
+	TRY
+		factura.darAlta()
+		? "Alta OK"
+	CATCH TO err
+		? "darAlta() ERROR: "
+		? err.UserValue
+	ENDTRY
+endproc
