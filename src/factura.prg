@@ -11,13 +11,67 @@ DEFINE CLASS Factura as Custom
 		this.detalleArticulos = NEWOBJECT("Collection")
 	ENDFUNC 
 
+	* ------------------- Métodos Públicos -------------------
+	
+	&& ----------------------------------------	
+	&& Validacion y agregado de articulo a la factura
+	&& ----------------------------------------	
 	FUNCTION agregarArticulo(itemArt as ItemArticulo) as VOID
+		&& validaciones
 		this.lanzarExcepcionSiMontoInvalido(itemArt)
 		this.lanzarExcepcionSiItemInvalido(itemArt)
+		
+		&& se agrega el articulo a la factura
 		this.detalleArticulos.add(itemArt)
+		this.total = this.total + itemArt.monto
 	ENDFUNC
 	
+	
+	&& ----------------------------------------	
+	&& Validacion de factura y acceso a tablas
+	&& ----------------------------------------	
 	FUNCTION darAlta() as VOID
+		&& validaciones
+		this.lanzarExcepcionConAltaInvalida()
+
+		&& se agrega el articulo a la factura
+		
+		* logica de alta
+		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
+	ENDFUNC
+	FUNCTION eliminar() as VOID
+	ENDFUNC
+	
+	&& ----------------------------------------	
+	&& Se calcula el total de la factura 
+	&& ante el evento de acceso al atributo 'total'
+	&& ----------------------------------------	
+	FUNCTION total_access() as Double
+		totalAcumulado = 0
+		FOR EACH articulo IN this.detalleArticulos
+			totalAcumulado = totalAcumulado + articulo.monto
+		ENDFOR
+		RETURN totalAcumulado
+	ENDFUNC 
+	
+	* ------------------- Métodos Privados -------------------
+
+	&& ----------------------------------------	
+	&& En caso de no cumplir las condiciones se lanza una excepción
+	&& ----------------------------------------	
+	HIDDEN FUNCTION lanzarExcepcionSiMontoInvalido(itemArt as itemArticulo) as VOID 
+		IF NOT itemArt.monto >= 0
+			THROW "No se puede almacenar un item con monto negativo"
+		ENDIF
+	ENDFUNC
+
+	HIDDEN FUNCTION lanzarExcepcionSiItemInvalido(itemArt as itemArticulo) as VOID 
+		IF NOT itemArt.itemValido()
+			THROW "No se puede almacenar un item invalido"
+		ENDIF
+	ENDFUNC
+	
+	HIDDEN FUNCTION lanzarExcepcionConAltaInvalida() as VOID 
 		errorLog = ""
 		WITH this
 			.ptoVentaValido(@errorLog)
@@ -32,32 +86,13 @@ DEFINE CLASS Factura as Custom
 		IF NOT altaValida
 			THROW "Alta invalida: " + errorLog
 		ENDIF
-		* logica de alta
-		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
 	ENDFUNC
-	FUNCTION eliminar() as VOID
-	ENDFUNC
-	
-	* -------------------
-	
-	HIDDEN FUNCTION lanzarExcepcionSiMontoInvalido(itemArt as itemArticulo)
-		IF NOT itemArt.monto >= 0
-			THROW "El monto no puede ser negativo"
-		ENDIF
-	ENDFUNC
+	&& ----------------------------------------
 
-	*puntoVenta = 0
-	*letra = ""
-	*numero = 0
-	*fecha = {}
-	*codigoCliente = ""
-
-	HIDDEN FUNCTION lanzarExcepcionSiItemInvalido(itemArt as itemArticulo)
-		IF NOT itemArt.itemValido()
-			THROW "Item invalido"
-		ENDIF
-	ENDFUNC
 	
+	&& ----------------------------------------
+	&& Verifica que el punto de venta sea no negativo
+	&& ----------------------------------------
 	HIDDEN FUNCTION ptoVentaValido(log as Character) as Boolean
 		valido = this.puntoVenta >= 0
 		IF NOT valido
@@ -66,6 +101,10 @@ DEFINE CLASS Factura as Custom
 		RETURN valido
 	ENDFUNC 
 	
+	
+	&& ----------------------------------------
+	&& Verifica que el campo letra pertenezca al conjunto de letras validas
+	&& ----------------------------------------
 	HIDDEN FUNCTION letraValida(log as Character) as Boolean
 		valido = INLIST(this.letra, "A","B","C","D")
 		IF NOT valido
@@ -74,6 +113,10 @@ DEFINE CLASS Factura as Custom
 		RETURN valido
 	ENDFUNC
 	
+	
+	&& ----------------------------------------
+	&& Verifica que el campo numero sea positivo
+	&& ----------------------------------------
 	HIDDEN FUNCTION numeroValido(log as Character) as Boolean
 		valido = this.numero > 0
 		IF NOT valido
@@ -82,6 +125,10 @@ DEFINE CLASS Factura as Custom
 		RETURN valido
 	ENDFUNC
 	
+	
+	&& ----------------------------------------
+	&& Verifica fecha no vacia
+	&& ----------------------------------------
 	HIDDEN FUNCTION fechaValida(log as Character) as Boolean
 		valido =  not EMPTY(this.fecha)
 		IF NOT valido
@@ -91,18 +138,18 @@ DEFINE CLASS Factura as Custom
 		
 	ENDFUNC
 	
+	&& ----------------------------------------
+	&& se verifica que haya articulos y que todos sean validos
+	&& ----------------------------------------
 	HIDDEN FUNCTION detalleArticuloValido(log as Character) as Boolean
 		&& Condicion de coleccion no vacia
-		&& --------------------
 		coleccionVacia = this.detalleArticulos.count = 0
 		IF coleccionVacia
 			log = log + "se debe incluir al menos un articulo; "
 			RETURN .f.
 		ENDIF
-		&& --------------------
 		
 		&& Condicion de elementos validos
-		&& --------------------
 		articulosValidos = .t.
 		FOR EACH articulo IN this.detalleArticulos
 			IF NOT articulo.itemValido()
@@ -114,11 +161,13 @@ DEFINE CLASS Factura as Custom
 			log = log + "existen articulos invalidos; "
 			RETURN .f.
 		ENDIF
-		&& --------------------
-		
+				
 		RETURN .t.
 	ENDFUNC
 	
+	&& ----------------------------------------
+	&& se verifica que el total de factura sea no negativo
+	&& ----------------------------------------
 	HIDDEN FUNCTION totalValido(log as Character) as Boolean
 		valido = this.calcularTotalFactura() >= 0
 		IF NOT valido
@@ -127,6 +176,10 @@ DEFINE CLASS Factura as Custom
 		RETURN valido
 	ENDFUNC
 	
+	&& ----------------------------------------
+	&& Calculo de total de factura en base a los 
+	&& montos de cada articulo
+	&& ----------------------------------------
 	HIDDEN FUNCTION calcularTotalFactura() as double
 		totalFactura = 0
 		FOR EACH articulo IN this.detalleArticulos
