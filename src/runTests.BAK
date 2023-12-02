@@ -19,10 +19,12 @@ IF success
 	?? "OK"
 ENDIF 
 * --------------------------------------
-? "Tests Factura"
+? "Tests Factura: "
 success = .f.
 TRY 
-	
+	test05AñadirArticuloInvalidoAFacturaDebeLanzarExcepcion()
+	test06TotalDeLaFacturaEsLaSumaDelMontoDeLosArticulos()
+	test07DarDeAltaUnaFacturaConCamposInvalidosDebeLanzarExcepcion()
 	
 	success = .t.
 CATCH TO err 
@@ -94,4 +96,116 @@ PROCEDURE test04MontoCalculadoEnBaseALosDemasCampos()
 	IF itemArt.monto != montoEsperado
 		THROW "[test04] Calculo de monto incorrecto"
 	ENDIF 
+ENDPROC 
+
+PROCEDURE test05AñadirArticuloInvalidoAFacturaDebeLanzarExcepcion()
+	LOCAL err as Exception 
+	factura = NEWOBJECT("Factura", "factura.prg")
+	itemArt = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	
+	cantidadInvalida = -2
+	itemArt.inicializar("art01", "articulo 01", cantidadInvalida, 100, 21)
+
+	errorLanzado = .f.
+	TRY
+		factura.agregarArticulo(itemArt)
+	CATCH TO err
+		errorLanzado = .t.	
+	ENDTRY 
+	
+	IF NOT errorLanzado
+		THROW "[test05] debe lanzarse error al agregar articulos invalidos"
+	ENDIF 
+ENDPROC 
+
+PROCEDURE test06TotalDeLaFacturaEsLaSumaDelMontoDeLosArticulos()
+	factura = NEWOBJECT("Factura", "factura.prg")
+	itemArt1 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt2 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt3 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	
+	precioUnitario1=5
+	precioUnitario2=7
+	precioUnitario3=8
+	cantidad=10
+	alicuotaIVA=21
+	
+	itemArt1.inicializar("art01", "articulo 01", cantidad, precioUnitario1, alicuotaIVA)
+	itemArt2.inicializar("art02", "articulo 02", cantidad, precioUnitario1, alicuotaIVA)
+	itemArt3.inicializar("art03", "articulo 03", cantidad, precioUnitario1, alicuotaIVA)
+	
+	factura.agregarArticulo(itemArt1)
+	factura.agregarArticulo(itemArt2)
+	factura.agregarArticulo(itemArt3)
+
+	totalEsperado = itemArt1.monto + itemArt2.monto + itemArt3.monto
+
+	IF factura.total != totalEsperado
+		THROW "[test06] El total de la factura debe ser la suma de los montos de cada articulo"
+	ENDIF 
+ENDPROC 
+
+PROCEDURE test07DarDeAltaUnaFacturaConCamposInvalidosDebeLanzarExcepcion()
+	private factura1 as Object, factura2 as Object, factura3 as Object, factura4 as Object
+	
+	factura1 = NEWOBJECT("Factura", "factura.prg")
+	factura2 = NEWOBJECT("Factura", "factura.prg")
+	factura3 = NEWOBJECT("Factura", "factura.prg")
+	factura4 = NEWOBJECT("Factura", "factura.prg")
+	
+	itemArt = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt.inicializar("art01", "articulo 01", 10, 100, 21)
+	
+	puntoVentaInvalido = -1
+	letraInvalida = 'X'
+	numeroInvalido = -1
+	fechaInvalida = {}
+	
+	factura1.puntoVenta = puntoVentaInvalido 
+	factura1.letra = 'A'
+	factura1.numero = 2300000
+	factura1.fecha = CTOD("22/06/1995")
+	factura1.agregarArticulo(itemArt)
+	
+	
+	factura2.puntoVenta = 1
+	factura2.letra = letraInvalida 
+	factura2.numero = 2300000
+	factura2.fecha = CTOD("22/06/1995")
+	factura2.agregarArticulo(itemArt)
+	
+	
+	factura3.puntoVenta = 1
+	factura3.letra = 'A'
+	factura3.numero = 2300000
+	factura3.fecha = CTOD("22/06/1995")
+	factura3.agregarArticulo(itemArt)
+	
+	
+	factura4.puntoVenta = 1
+	factura4.letra = 'A'
+	factura4.numero = 2300000
+	factura4.fecha = fechaInvalida 
+	factura4.agregarArticulo(itemArt)
+
+	todasLasExcepcionesLanzadas = ;
+		instruccionLanzaExcepcion("factura1.darAlta()") and ;
+		instruccionLanzaExcepcion("factura2.darAlta()") and ;
+		instruccionLanzaExcepcion("factura3.darAlta()") and ;
+		instruccionLanzaExcepcion("factura4.darAlta()")
+	
+	IF NOT todasLasExcepcionesLanzadas
+		THROW "[test07] No se puede dar de alta una factura invalida"
+	ENDIF 
+ENDPROC 
+
+FUNCTION instruccionLanzaExcepcion(macroInstruccion as Character) as boolean
+	excepcionLanzada = .t.
+	try
+		&macroInstruccion
+		excepcionLanzada = .f.
+	CATCH
+		excepcionLanzada = .t.
+	ENDTRY 
+	RETURN excepcionLanzada
 ENDPROC 

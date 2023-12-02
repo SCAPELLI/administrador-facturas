@@ -13,6 +13,9 @@ DEFINE CLASS Factura as Custom
 
 	* ------------------- Métodos Públicos -------------------
 	
+	&& ----------------------------------------	
+	&& Validacion y agregado de articulo a la factura
+	&& ----------------------------------------	
 	FUNCTION agregarArticulo(itemArt as ItemArticulo) as VOID
 		&& validaciones
 		this.lanzarExcepcionSiMontoInvalido(itemArt)
@@ -23,6 +26,10 @@ DEFINE CLASS Factura as Custom
 		this.total = this.total + itemArt.monto
 	ENDFUNC
 	
+	
+	&& ----------------------------------------	
+	&& Validacion de factura y acceso a tablas
+	&& ----------------------------------------	
 	FUNCTION darAlta() as VOID
 		&& validaciones
 		this.lanzarExcepcionConAltaInvalida()
@@ -35,6 +42,10 @@ DEFINE CLASS Factura as Custom
 	FUNCTION eliminar() as VOID
 	ENDFUNC
 	
+	&& ----------------------------------------	
+	&& Se calcula el total de la factura 
+	&& ante el evento de acceso al atributo 'total'
+	&& ----------------------------------------	
 	FUNCTION total_access() as Double
 		totalAcumulado = 0
 		FOR EACH articulo IN this.detalleArticulos
@@ -45,7 +56,7 @@ DEFINE CLASS Factura as Custom
 	
 	* ------------------- Métodos Privados -------------------
 
-
+	&& ----------------------------------------	
 	&& En caso de no cumplir las condiciones se lanza una excepción
 	&& ----------------------------------------	
 	HIDDEN FUNCTION lanzarExcepcionSiMontoInvalido(itemArt as itemArticulo) as VOID 

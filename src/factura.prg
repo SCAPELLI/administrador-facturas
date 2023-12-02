@@ -33,8 +33,6 @@ DEFINE CLASS Factura as Custom
 	FUNCTION darAlta() as VOID
 		&& validaciones
 		this.lanzarExcepcionConAltaInvalida()
-
-		&& se agrega el articulo a la factura
 		
 		* logica de alta
 		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
