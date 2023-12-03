@@ -15,11 +15,7 @@ factura.fecha = CTOD("22/06/1995")
 factura.agregarArticulo(itemArt1)
 factura.agregarArticulo(itemArt2)
 
-
-
 TRY 
-	factura.darAlta()
-	factura.darAlta()
 	factura.darAlta()
 	factura.darAlta()
 CATCH TO err
@@ -27,6 +23,7 @@ CATCH TO err
 ENDTRY
 
 TRY
+	factura.eliminar()
 	factura.eliminar()
 CATCH TO err
 	? err.UserValue

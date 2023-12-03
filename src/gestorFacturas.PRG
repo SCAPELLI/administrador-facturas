@@ -2,6 +2,8 @@
 #define RUTA_FACDET "facdet.dbf"
 #define RUTA_INDICE_FAC "fac.idx"
 
+&& ------------------- Funciones publicas ---------------------	
+
 PROCEDURE darAlta(factura as Object)
 	verificarTablas()
 	commitFac(factura)
@@ -9,9 +11,12 @@ PROCEDURE darAlta(factura as Object)
 ENDFUNC 
 
 PROCEDURE eliminar(factura as Object)
+	verificarTablas(.t.)
 	eliminarDeFacDet(factura)
 	eliminarDeFac(factura)
 ENDPROC 
+
+&& ------------------- Funciones privadas ---------------------	
 
 && ----------------------------------------	
 && Busqueda por tupla: (punto de venta, letra, numero)
@@ -39,8 +44,11 @@ ENDPROC
 && Verifica que existan las tablas. De fallar la 
 && verificacion se crearan en blanco.
 && ----------------------------------------
-PROCEDURE verificarTablas()
+PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 	IF !FILE(RUTA_FAC) OR !FILE(RUTA_FACDET)
+		IF lanzarExcepcionSiFaltanTablas
+			THROW "Operacion cancelada: Faltan tablas"
+		ENDIF
 		CREATE TABLE FAC ( ;
 			fptoven numeric(5), ;
 			fletra character(1), ;
@@ -96,6 +104,7 @@ PROCEDURE commitFacDet(factura as Object)
 	TRY 
 		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
 		SELECT facDetTable
+		browse
 		FOR EACH articulo IN detalleArticulos
 			APPEND BLANK
 			replace ;
@@ -109,7 +118,8 @@ PROCEDURE commitFacDet(factura as Object)
 					faliciva WITH articulo.alicuotaIVA, ;
 					fmonto WITH articulo.monto
 		ENDFOR
-	FINALLY 
+	FINALLY
+		browse
 		USE IN ("facDetTable")
 	ENDTRY 
 ENDPROC 
@@ -137,6 +147,7 @@ PROCEDURE eliminarDeFacDet(factura as Object)
 	TRY 
 		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
 		SELECT facDetTable
+		browse
 		registroEncontrado = .t.
 		DO WHILE registroEncontrado
 			registroEncontrado = buscarRegistro(factura)
@@ -146,6 +157,7 @@ PROCEDURE eliminarDeFacDet(factura as Object)
 			ENDIF
 		ENDDO
 	FINALLY 
+		browse
 		USE IN ("facDetTable")
 	ENDTRY
 ENDPROC 

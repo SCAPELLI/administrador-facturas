@@ -220,28 +220,4 @@ DEFINE CLASS Factura as Custom
 		ENDFOR
 		RETURN totalFactura
 	ENDFUNC
-	
-	* -------------------------------------------
-	#define RUTA_FACTURA as "fac.dbf"
-	#define RUTA_FACDET as "facdet.dbf"
-
-	#define PERMITE_DUPLICADOS as .t.
-	
-	FUNCTION darAlaasdta(factura as Object, puntoventa) as VOID 
-		SET STEP ON 
-		? puntoVenta
-		return
-		CLOSE TABLES all
-		USE fac IN 0 ALIAS "factura" EXCLUSIVE
-		APPEND BLANK
-		replace ;
-			fptoven WITH factura.puntoVenta, ;
-			fletra WITH factura.letra, ;
-			fnumcomp WITH factura.numero, ;
-			ffecha WITH factura.fecha, ;
-			fcodcli WITH factura.codCli, ; 
-			ftotal WITH factura.total
-		USE IN ("fac")
-	ENDFUNC 
-	
 ENDDEFINE

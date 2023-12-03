@@ -40,7 +40,7 @@ DEFINE CLASS Factura as Custom
 		
 		*DO darAlta WITH this.detalleArticulos IN gestorFacturas.prg
 		
-		x = NEWOBJECT("collection")
+		*x = NEWOBJECT("collection")
 		*DO darAlta WITH x IN gestorFacturas.prg
 		
 		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
