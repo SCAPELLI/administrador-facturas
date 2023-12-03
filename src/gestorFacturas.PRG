@@ -5,20 +5,8 @@
 
 PROCEDURE darAlta(factura as Object)
 	verificarTablas()
-	TRY 
-		USE RUTA_FAC IN 0 ALIAS "facTable" EXCLUSIVE
-		SELECT facTable
-		APPEND BLANK
-		replace ;
-				fptoven WITH factura.puntoVenta, ;
-				fletra WITH factura.letra, ;
-				fnumcomp WITH factura.numero, ;
-				ffecha WITH factura.fecha, ;
-				fcodcli WITH factura.codigoCliente, ; 
-				ftotal WITH factura.total
-	FINALLY 
-		USE IN ("facTable")
-	ENDTRY 
+	commitFac(factura)
+	commitFacDet(factura)
 ENDFUNC 
 
 PROCEDURE eliminar(factura as Object)
@@ -55,4 +43,44 @@ PROCEDURE verificarTablas()
 		USE IN ("FAC")
 		USE IN ("FACDET")
 	ENDIF
+ENDPROC 
+
+PROCEDURE commitFac(factura as Object)
+	TRY 
+		USE RUTA_FAC IN 0 ALIAS "facTable" EXCLUSIVE
+		SELECT facTable
+		APPEND BLANK
+		replace ;
+				fptoven WITH factura.puntoVenta, ;
+				fletra WITH factura.letra, ;
+				fnumcomp WITH factura.numero, ;
+				ffecha WITH factura.fecha, ;
+				fcodcli WITH factura.codigoCliente, ; 
+				ftotal WITH factura.total
+	FINALLY 
+		USE IN ("facTable")
+	ENDTRY 
+ENDPROC 
+
+PROCEDURE commitFacDet(factura as Object)
+	detalleArticulos = factura.detalleArticulos 
+	TRY 
+		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
+		SELECT facDetTable
+		FOR EACH articulo IN detalleArticulos
+			APPEND BLANK
+			replace ;
+					fptoven WITH factura.puntoVenta, ;
+					fletra WITH factura.letra, ;
+					fnumcomp WITH factura.numero, ;
+					fcodart WITH articulo.codigoArticulo, ;
+					fdesart WITH articulo.descripcionArticulo, ;
+					fcant WITH articulo.cantidad, ;
+					fprecuni WITH articulo.precioUnitario, ;
+					faliciva WITH articulo.alicuotaIVA, ;
+					fmonto WITH articulo.monto
+		ENDFOR
+	FINALLY 
+		USE IN ("facDetTable")
+	ENDTRY 
 ENDPROC 
