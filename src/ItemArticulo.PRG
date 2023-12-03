@@ -5,7 +5,10 @@ DEFINE CLASS ItemArticulo as Custom
 	precioUnitario = 0.0
 	alicuotaIVA = 0.0
 	monto = 0.0
-
+	
+	&& ----------------------------------------	
+	&& Se verifican las condiciones de item válido
+	&& ----------------------------------------	
 	FUNCTION itemValido() as Boolean
 		RETURN ( ;
 			not EMPTY(this.codigoArticulo) AND ;
@@ -16,10 +19,19 @@ DEFINE CLASS ItemArticulo as Custom
 		)
 	ENDFUNC
 
+
+	&& ----------------------------------------	
+	&& Se calcula el monto del articulo
+	&& ante el evento de acceso al atributo 'monto'
+	&& ----------------------------------------	
 	FUNCTION monto_access() as double
 		RETURN this.cantidad * this.precioUnitario * (1 + this.alicuotaIVA/100)
 	ENDFUNC
 
+	&& ----------------------------------------	
+	&& Carga del conjunto de valores de una instancia
+	&& Obs: El monto se calcula en base al resto de valores ingresados
+	&& ----------------------------------------	
 	FUNCTION inicializar( ;
 		codigoArticulo as character, ;
 		descripcionArticulo as character, ;

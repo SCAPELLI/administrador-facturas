@@ -28,7 +28,8 @@ DEFINE CLASS Factura as Custom
 	
 	
 	&& ----------------------------------------	
-	&& Validacion de factura y acceso a tablas
+	&& Validacion de campos en factura
+	&& y registro de la factura en tablas
 	&& ----------------------------------------	
 	FUNCTION darAlta() as VOID
 		&& validaciones
@@ -37,7 +38,19 @@ DEFINE CLASS Factura as Custom
 		* logica de alta
 		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
 	ENDFUNC
+	
+	
+	&& ----------------------------------------	
+	&& Validacion de campos punto de venta, letra y numero
+	&& y eliminacion de factura en tablas
+	&& ----------------------------------------	
 	FUNCTION eliminar() as VOID
+		&& validaciones
+		this.lanzarExcepcionSiEliminacionInvalida()
+		
+		*logica de eliminación
+		*TODO: Se deberan buscar en los dbfs si existe la entrada y eliminarla
+		*TODO: si no existe se debe lanzar una excepcion
 	ENDFUNC
 	
 	&& ----------------------------------------	
@@ -84,6 +97,10 @@ DEFINE CLASS Factura as Custom
 		IF NOT altaValida
 			THROW "Alta invalida: " + errorLog
 		ENDIF
+	ENDFUNC
+	
+	HIDDEN FUNCTION lanzarExcepcionSiEliminacionInvalida() as VOID
+		* TODO: validar campos y lanzar excepcion, debe pàsar test08
 	ENDFUNC
 	&& ----------------------------------------
 

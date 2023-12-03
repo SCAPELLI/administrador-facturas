@@ -1,6 +1,6 @@
 clear
 LOCAL err as Exception
-
+* --------------------------------------
 ? "Tests ItemArticulo: "
 success = .f.
 TRY 
@@ -25,6 +25,7 @@ TRY
 	test05AñadirArticuloInvalidoAFacturaDebeLanzarExcepcion()
 	test06TotalDeLaFacturaEsLaSumaDelMontoDeLosArticulos()
 	test07DarDeAltaUnaFacturaConCamposInvalidosDebeLanzarExcepcion()
+	test08EliminarUnaFacturaConPuntoDeVentaLetraONumeroInvalidosDebeLanzarExcepcion()
 	
 	success = .t.
 CATCH TO err 
@@ -208,4 +209,36 @@ FUNCTION instruccionLanzaExcepcion(macroInstruccion as Character) as boolean
 		excepcionLanzada = .t.
 	ENDTRY 
 	RETURN excepcionLanzada
+ENDPROC 
+
+PROCEDURE test08EliminarUnaFacturaConPuntoDeVentaLetraONumeroInvalidosDebeLanzarExcepcion()
+	factura1 = NEWOBJECT("Factura", "factura.prg")
+	factura2 = NEWOBJECT("Factura", "factura.prg")
+	factura3 = NEWOBJECT("Factura", "factura.prg")
+	
+	puntoVentaInvalido = -1
+	letraInvalida = 'X'
+	numeroInvalido = -1
+	fechaInvalida = {}
+	
+	factura1.puntoVenta = puntoVentaInvalido 
+	factura1.letra = 'A'
+	factura1.numero = 2300000
+	
+	factura2.puntoVenta = 1
+	factura2.letra = letraInvalida 
+	factura2.numero = 2300000
+	
+	factura3.puntoVenta = 1
+	factura3.letra = 'A'
+	factura3.numero = numeroInvalido 
+	
+	todasLasExcepcionesLanzadas = ;
+		instruccionLanzaExcepcion("factura1.eliminar()") and ;
+		instruccionLanzaExcepcion("factura2.eliminar()") and ;
+		instruccionLanzaExcepcion("factura3.eliminar()")
+		
+	IF NOT todasLasExcepcionesLanzadas
+		THROW "[test08] eliminar una factura con punto de venta, letra o numero invalidos debe lanzar excepcion"
+	ENDIF 
 ENDPROC 
