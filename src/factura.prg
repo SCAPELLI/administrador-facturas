@@ -36,6 +36,13 @@ DEFINE CLASS Factura as Custom
 		this.lanzarExcepcionConAltaInvalida()
 		
 		* logica de alta
+		DO darAlta WITH this IN gestorFacturas.prg
+		
+		*DO darAlta WITH this.detalleArticulos IN gestorFacturas.prg
+		
+		x = NEWOBJECT("collection")
+		*DO darAlta WITH x IN gestorFacturas.prg
+		
 		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
 	ENDFUNC
 	
@@ -49,6 +56,7 @@ DEFINE CLASS Factura as Custom
 		this.lanzarExcepcionSiEliminacionInvalida()
 		
 		*logica de eliminación
+		DO eliminar WITH this IN gestorFacturas.prg
 		*TODO: Se deberan buscar en los dbfs si existe la entrada y eliminarla
 		*TODO: si no existe se debe lanzar una excepcion
 	ENDFUNC
@@ -100,7 +108,17 @@ DEFINE CLASS Factura as Custom
 	ENDFUNC
 	
 	HIDDEN FUNCTION lanzarExcepcionSiEliminacionInvalida() as VOID
-		* TODO: validar campos y lanzar excepcion, debe pàsar test08
+		errorLog = ""
+		WITH this
+			.ptoVentaValido(@errorLog)
+			.letraValida(@errorLog)
+			.numeroValido(@errorLog)
+		ENDWITH
+		
+		eliminacionValida = EMPTY(errorLog)
+		IF NOT eliminacionValida 
+			THROW "Eliminación invalida: " + errorLog
+		ENDIF
 	ENDFUNC
 	&& ----------------------------------------
 
@@ -202,5 +220,28 @@ DEFINE CLASS Factura as Custom
 		ENDFOR
 		RETURN totalFactura
 	ENDFUNC
+	
+	* -------------------------------------------
+	#define RUTA_FACTURA as "fac.dbf"
+	#define RUTA_FACDET as "facdet.dbf"
+
+	#define PERMITE_DUPLICADOS as .t.
+	
+	FUNCTION darAlaasdta(factura as Object, puntoventa) as VOID 
+		SET STEP ON 
+		? puntoVenta
+		return
+		CLOSE TABLES all
+		USE fac IN 0 ALIAS "factura" EXCLUSIVE
+		APPEND BLANK
+		replace ;
+			fptoven WITH factura.puntoVenta, ;
+			fletra WITH factura.letra, ;
+			fnumcomp WITH factura.numero, ;
+			ffecha WITH factura.fecha, ;
+			fcodcli WITH factura.codCli, ; 
+			ftotal WITH factura.total
+		USE IN ("fac")
+	ENDFUNC 
 	
 ENDDEFINE

@@ -1,0 +1,13 @@
+#define RUTA_FACTURA as "fac.dbf"
+#define RUTA_FACDET as "facdet.dbf"
+
+#define PERMITE_DUPLICADOS as .t.
+
+PROCEDURE darAlta(factura as Object)
+	SET STEP ON 
+	factura.puntoVenta
+ENDFUNC 
+
+PROCEDURE eliminar(factura as Object)
+	? "TODO: [eliminar]"
+ENDPROC 

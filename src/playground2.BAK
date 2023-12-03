@@ -11,7 +11,6 @@ itemArt.inicializar("art01", "articulo 01", 10, 100, 21)
 ? "item valido: " + transform(itemArt.itemValido())
 ? itemArt.monto
 TRY 
-	? "articulo agregado OK"
 	factura.agregarArticulo(itemArt)
 	? "articulo agregado OK"
 CATCH TO err

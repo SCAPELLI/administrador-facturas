@@ -219,19 +219,18 @@ PROCEDURE test08EliminarUnaFacturaConPuntoDeVentaLetraONumeroInvalidosDebeLanzar
 	puntoVentaInvalido = -1
 	letraInvalida = 'X'
 	numeroInvalido = -1
-	fechaInvalida = {}
 	
 	factura1.puntoVenta = puntoVentaInvalido 
 	factura1.letra = 'A'
 	factura1.numero = 2300000
 	
 	factura2.puntoVenta = 1
-	factura2.letra = letraInvalida 
+	factura2.letra = letraInvalida
 	factura2.numero = 2300000
 	
 	factura3.puntoVenta = 1
 	factura3.letra = 'A'
-	factura3.numero = numeroInvalido 
+	factura3.numero = numeroInvalido
 	
 	todasLasExcepcionesLanzadas = ;
 		instruccionLanzaExcepcion("factura1.eliminar()") and ;
