@@ -1,7 +1,6 @@
 #define RUTA_FAC "fac.dbf"
 #define RUTA_FACDET "facdet.dbf"
-
-#define PERMITE_DUPLICADOS as .t.
+#define RUTA_INDICE_FAC "fac.idx"
 
 PROCEDURE darAlta(factura as Object)
 	verificarTablas()
@@ -10,7 +9,30 @@ PROCEDURE darAlta(factura as Object)
 ENDFUNC 
 
 PROCEDURE eliminar(factura as Object)
-	? "TODO: [eliminar]"
+	eliminarDeFacDet(factura)
+	eliminarDeFac(factura)
+ENDPROC 
+
+&& ----------------------------------------	
+&& Busqueda por tupla: (punto de venta, letra, numero)
+&& retorna un booleano indicando si se encontro.
+&& En caso de encontrarse: el cursor se posiciona en alguno de los registros coincidentes
+&& ----------------------------------------
+FUNCTION buscarRegistro(factura as Object) as Boolean
+	* ERROR: 'set order to RUTA_INDICE_FAC' o 'set order to fac' da error.
+	* Como alternativa, elimino el indice y lo vuelvo a crear en cada busqueda 
+	* -----------------
+	IF FILE(RUTA_INDICE_FAC)
+		DELETE FILE RUTA_INDICE_FAC
+	ENDIF
+	INDEX ON STR(fptoven) + fletra + STR(fnumcomp) TO fac
+	* -----------------
+	
+	SEEK STR(factura.puntoVenta) + factura.letra + STR(factura.numero)
+
+	CLOSE INDEXES
+	
+	RETURN FOUND()
 ENDPROC 
 
 && ----------------------------------------	
@@ -46,20 +68,27 @@ PROCEDURE verificarTablas()
 ENDPROC 
 
 PROCEDURE commitFac(factura as Object)
+	registroEncontrado = .t.
 	TRY 
 		USE RUTA_FAC IN 0 ALIAS "facTable" EXCLUSIVE
 		SELECT facTable
-		APPEND BLANK
-		replace ;
-				fptoven WITH factura.puntoVenta, ;
-				fletra WITH factura.letra, ;
-				fnumcomp WITH factura.numero, ;
-				ffecha WITH factura.fecha, ;
-				fcodcli WITH factura.codigoCliente, ; 
-				ftotal WITH factura.total
+		registroEncontrado = buscarRegistro(factura)
+		IF !registroEncontrado
+			APPEND BLANK
+			replace ;
+					fptoven WITH factura.puntoVenta, ;
+					fletra WITH factura.letra, ;
+					fnumcomp WITH factura.numero, ;
+					ffecha WITH factura.fecha, ;
+					fcodcli WITH factura.codigoCliente, ; 
+					ftotal WITH factura.total
+		ENDIF 
 	FINALLY 
 		USE IN ("facTable")
 	ENDTRY 
+	IF registroEncontrado 
+		THROW "No se puede dar de alta una factura que ya existe"
+	ENDIF
 ENDPROC 
 
 PROCEDURE commitFacDet(factura as Object)
@@ -83,4 +112,40 @@ PROCEDURE commitFacDet(factura as Object)
 	FINALLY 
 		USE IN ("facDetTable")
 	ENDTRY 
+ENDPROC 
+
+PROCEDURE eliminarDeFac(factura as Object)
+	registroEncontrado = .t.
+	TRY 
+		USE RUTA_FAC IN 0 ALIAS "facTable" EXCLUSIVE
+		SELECT facTable
+		registroEncontrado = buscarRegistro(factura)
+		IF registroEncontrado 
+			DELETE
+			PACK
+		ENDIF 
+	FINALLY
+		USE IN ("facTable")
+	ENDTRY
+	
+	IF !registroEncontrado 
+		THROW "No se puede eliminar una factura que no existe"
+	ENDIF 
+ENDPROC 
+
+PROCEDURE eliminarDeFacDet(factura as Object)
+	TRY 
+		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
+		SELECT facDetTable
+		registroEncontrado = .t.
+		DO WHILE registroEncontrado
+			registroEncontrado = buscarRegistro(factura)
+			IF registroEncontrado 
+				DELETE
+				PACK
+			ENDIF
+		ENDDO
+	FINALLY 
+		USE IN ("facDetTable")
+	ENDTRY
 ENDPROC 
