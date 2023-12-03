@@ -1,13 +1,58 @@
-#define RUTA_FACTURA as "fac.dbf"
-#define RUTA_FACDET as "facdet.dbf"
+#define RUTA_FAC "fac.dbf"
+#define RUTA_FACDET "facdet.dbf"
 
 #define PERMITE_DUPLICADOS as .t.
 
 PROCEDURE darAlta(factura as Object)
-	SET STEP ON 
-	factura.puntoVenta
+	verificarTablas()
+	TRY 
+		USE RUTA_FAC IN 0 ALIAS "facTable" EXCLUSIVE
+		SELECT facTable
+		APPEND BLANK
+		replace ;
+				fptoven WITH factura.puntoVenta, ;
+				fletra WITH factura.letra, ;
+				fnumcomp WITH factura.numero, ;
+				ffecha WITH factura.fecha, ;
+				fcodcli WITH factura.codigoCliente, ; 
+				ftotal WITH factura.total
+	FINALLY 
+		USE IN ("facTable")
+	ENDTRY 
 ENDFUNC 
 
 PROCEDURE eliminar(factura as Object)
 	? "TODO: [eliminar]"
+ENDPROC 
+
+&& ----------------------------------------	
+&& Verifica que existan las tablas. De fallar la 
+&& verificacion se crearan en blanco.
+&& ----------------------------------------
+PROCEDURE verificarTablas()
+	IF !FILE(RUTA_FAC) OR !FILE(RUTA_FACDET)
+		CREATE TABLE FAC ( ;
+			fptoven numeric(5), ;
+			fletra character(1), ;
+			fnumcomp numeric(8), ;
+			ffecha date, ;
+			fcodcli character(15), ;
+			ftotal numeric(15,2) ;
+		)
+
+		CREATE TABLE FACDET ( ;
+			fptoven numeric(5), ;
+			fletra character(1), ;
+			fnumcomp numeric(8), ;
+			fcodart character(10), ;
+			fdesart character(25), ;
+			fcant numeric(15,2), ;
+			fprecuni numeric(15,2), ;
+			faliciva numeric(5,2), ;
+			fmonto numeric(15,2) ;
+		)
+
+		USE IN ("FAC")
+		USE IN ("FACDET")
+	ENDIF
 ENDPROC 

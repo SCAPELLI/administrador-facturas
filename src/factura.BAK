@@ -227,7 +227,7 @@ DEFINE CLASS Factura as Custom
 
 	#define PERMITE_DUPLICADOS as .t.
 	
-	FUNCTION darAlta(factura as Object, puntoventa) as VOID 
+	FUNCTION darAlaasdta(factura as Object, puntoventa) as VOID 
 		SET STEP ON 
 		? puntoVenta
 		return

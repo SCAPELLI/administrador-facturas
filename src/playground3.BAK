@@ -7,8 +7,8 @@ itemArt.inicializar("art01", "articulo 01", 10, 100, 21)
 factura.puntoVenta = 1
 factura.letra = 'A'
 factura.numero = 2300000
-factura.fecha = CTOD("22/06/1995")
-factura.agregarArticulo(itemArt)
+factura.fecha = CTOD("22/06/1995")
+factura.agregarArticulo(itemArt)
 
 factura.darAlta()
 factura.eliminar()
