@@ -11,7 +11,7 @@ DEFINE CLASS Factura as Custom
 		this.detalleArticulos = NEWOBJECT("Collection")
 	ENDFUNC 
 
-	* ------------------- Métodos Públicos -------------------
+	* --------------------------------------  Métodos Públicos -------------------------------------- 
 	
 	&& ----------------------------------------	
 	&& Validacion y agregado de articulo a la factura
@@ -32,18 +32,8 @@ DEFINE CLASS Factura as Custom
 	&& y registro de la factura en tablas
 	&& ----------------------------------------	
 	FUNCTION darAlta() as VOID
-		&& validaciones
 		this.lanzarExcepcionConAltaInvalida()
-		
-		* logica de alta
 		DO darAlta WITH this IN gestorFacturas.prg
-		
-		*DO darAlta WITH this.detalleArticulos IN gestorFacturas.prg
-		
-		*x = NEWOBJECT("collection")
-		*DO darAlta WITH x IN gestorFacturas.prg
-		
-		*TODO: Si todo sale bien se cargarán en los dbfs que correspondan los registros con los datos de la factura.
 	ENDFUNC
 	
 	
@@ -52,13 +42,8 @@ DEFINE CLASS Factura as Custom
 	&& y eliminacion de factura en tablas
 	&& ----------------------------------------	
 	FUNCTION eliminar() as VOID
-		&& validaciones
 		this.lanzarExcepcionSiEliminacionInvalida()
-		
-		*logica de eliminación
 		DO eliminar WITH this IN gestorFacturas.prg
-		*TODO: Se deberan buscar en los dbfs si existe la entrada y eliminarla
-		*TODO: si no existe se debe lanzar una excepcion
 	ENDFUNC
 	
 	&& ----------------------------------------	
@@ -73,7 +58,7 @@ DEFINE CLASS Factura as Custom
 		RETURN totalAcumulado
 	ENDFUNC 
 	
-	* ------------------- Métodos Privados -------------------
+	* -------------------------------------- Métodos Privados -------------------------------------- 
 
 	&& ----------------------------------------	
 	&& En caso de no cumplir las condiciones se lanza una excepción
