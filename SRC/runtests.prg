@@ -26,6 +26,8 @@ TRY
 	test06TotalDeLaFacturaEsLaSumaDelMontoDeLosArticulos()
 	test07DarDeAltaUnaFacturaConCamposInvalidosDebeLanzarExcepcion()
 	test08EliminarUnaFacturaConPuntoDeVentaLetraONumeroInvalidosDebeLanzarExcepcion()
+	test09DarDeAltaUnaFacturaQueYaExisteLanzaExcepcion()
+	test10EliminarUnaFacturaQueNoExisteLanzaExcepcion()
 	
 	success = .t.
 CATCH TO err 
@@ -241,3 +243,65 @@ PROCEDURE test08EliminarUnaFacturaConPuntoDeVentaLetraONumeroInvalidosDebeLanzar
 		THROW "[test08] eliminar una factura con punto de venta, letra o numero invalidos debe lanzar excepcion"
 	ENDIF 
 ENDPROC 
+
+
+PROCEDURE test09DarDeAltaUnaFacturaQueYaExisteLanzaExcepcion()
+	factura= NEWOBJECT("Factura", "factura.prg")
+
+	itemArt1 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt2 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt1.inicializar("art01", "articulo 01", 10, 100, 21)
+	itemArt2.inicializar("art02", "articulo 02", 10, 100, 21)
+
+	factura.puntoVenta = 1
+	factura.letra = 'A'
+	factura.numero = 8
+	factura.fecha = CTOD("22/06/1995")
+	factura.agregarArticulo(itemArt1)
+	factura.agregarArticulo(itemArt2)
+	
+	expcepcionLanzada = .f.
+	TRY 
+		&& podria lanzarse expcecion en el primer llamado si la factura ya existe en la tabla
+		factura.darAlta()
+		factura.darAlta()
+	CATCH TO err
+		factura.eliminar()
+		excepcionLanzada = .t.
+	ENDTRY
+	
+	IF !excepcionLanzada
+		THROW "[test09] dar de alta una factura ya existente debe lanzar excepcion"
+	ENDIF 
+ENDPROC
+
+PROCEDURE test10EliminarUnaFacturaQueNoExisteLanzaExcepcion()
+	factura= NEWOBJECT("Factura", "factura.prg")
+
+	itemArt1 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt2 = NEWOBJECT("ItemArticulo", "ItemArticulo.prg")
+	itemArt1.inicializar("art01", "articulo 01", 10, 100, 21)
+	itemArt2.inicializar("art02", "articulo 02", 10, 100, 21)
+
+	factura.puntoVenta = 1
+	factura.letra = 'A'
+	factura.numero = 8
+	factura.fecha = CTOD("22/06/1995")
+	factura.agregarArticulo(itemArt1)
+	factura.agregarArticulo(itemArt2)
+	
+	excepcionLanzada= .f.
+	TRY 
+		&& podria lanzarse expcecion en el primer llamado si la factura ya existe en la tabla
+		factura.eliminar()
+		
+		factura.darAlta()
+		factura.eliminar()
+	CATCH TO err
+		excepcionLanzada = .t.
+	ENDTRY
+	
+	IF !excepcionLanzada
+		THROW "[test10] eliminar una factura no existente debe lanzar excepcion"
+	ENDIF 
+ENDPROC

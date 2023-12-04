@@ -1,6 +1,15 @@
-#define RUTA_FAC "fac.dbf"
-#define RUTA_FACDET "facdet.dbf"
-#define RUTA_INDICE_FAC "fac.idx"
+#define DIRECTORIO_DBF "..\DBF\"
+#define DIRECTORIO_IDX "..\IDX\"
+#define DIRECTORIO_SRC "..\SRC"
+
+#define NOMBRE_FAC "fac.dbf"
+#define RUTA_FAC (DIRECTORIO_DBF + NOMBRE_FAC)
+
+#define NOMBRE_FACDET "facdet.dbf"
+#define RUTA_FACDET(DIRECTORIO_DBF + NOMBRE_FACDET)
+
+#define NOMBRE_IDX "fac.idx"
+#define RUTA_INDICE_FAC (DIRECTORIO_IDX + NOMBRE_IDX)
 
 && ------------------- Funciones publicas ---------------------	
 
@@ -27,15 +36,20 @@ FUNCTION buscarRegistro(factura as Object) as Boolean
 	* ERROR: 'set order to RUTA_INDICE_FAC' o 'set order to fac' da error.
 	* Como alternativa, elimino el indice y lo vuelvo a crear en cada busqueda 
 	* -----------------
+
 	IF FILE(RUTA_INDICE_FAC)
 		DELETE FILE RUTA_INDICE_FAC
 	ENDIF
+	
+	cd DIRECTORIO_IDX 
 	INDEX ON STR(fptoven) + fletra + STR(fnumcomp) TO fac
+	CD DIRECTORIO_SRC
 	* -----------------
 	
 	SEEK STR(factura.puntoVenta) + factura.letra + STR(factura.numero)
 
 	CLOSE INDEXES
+	
 	
 	RETURN FOUND()
 ENDPROC 
@@ -49,6 +63,9 @@ PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 		IF lanzarExcepcionSiFaltanTablas
 			THROW "Operacion cancelada: Faltan tablas"
 		ENDIF
+		
+		CD DIRECTORIO_DBF 
+		
 		CREATE TABLE FAC ( ;
 			fptoven numeric(5), ;
 			fletra character(1), ;
@@ -69,6 +86,8 @@ PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 			faliciva numeric(5,2), ;
 			fmonto numeric(15,2) ;
 		)
+		
+		CD DIRECTORIO_SRC
 
 		USE IN ("FAC")
 		USE IN ("FACDET")
@@ -104,7 +123,6 @@ PROCEDURE commitFacDet(factura as Object)
 	TRY 
 		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
 		SELECT facDetTable
-		browse
 		FOR EACH articulo IN detalleArticulos
 			APPEND BLANK
 			replace ;
@@ -119,7 +137,6 @@ PROCEDURE commitFacDet(factura as Object)
 					fmonto WITH articulo.monto
 		ENDFOR
 	FINALLY
-		browse
 		USE IN ("facDetTable")
 	ENDTRY 
 ENDPROC 
@@ -129,6 +146,7 @@ PROCEDURE eliminarDeFac(factura as Object)
 	TRY 
 		USE RUTA_FAC IN 0 ALIAS "facTable" EXCLUSIVE
 		SELECT facTable
+		
 		registroEncontrado = buscarRegistro(factura)
 		IF registroEncontrado 
 			DELETE
@@ -147,7 +165,6 @@ PROCEDURE eliminarDeFacDet(factura as Object)
 	TRY 
 		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
 		SELECT facDetTable
-		browse
 		registroEncontrado = .t.
 		DO WHILE registroEncontrado
 			registroEncontrado = buscarRegistro(factura)
@@ -157,7 +174,6 @@ PROCEDURE eliminarDeFacDet(factura as Object)
 			ENDIF
 		ENDDO
 	FINALLY 
-		browse
 		USE IN ("facDetTable")
 	ENDTRY
 ENDPROC 
