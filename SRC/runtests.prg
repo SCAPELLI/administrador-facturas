@@ -1,4 +1,5 @@
-clear
+CLEAR
+CLOSE TABLES all
 LOCAL err as Exception
 * --------------------------------------
 ? "Tests ItemArticulo: "
@@ -260,7 +261,7 @@ PROCEDURE test09DarDeAltaUnaFacturaQueYaExisteLanzaExcepcion()
 	factura.agregarArticulo(itemArt1)
 	factura.agregarArticulo(itemArt2)
 	
-	expcepcionLanzada = .f.
+	excepcionLanzada = .f.
 	TRY 
 		&& podria lanzarse expcecion en el primer llamado si la factura ya existe en la tabla
 		factura.darAlta()
@@ -270,7 +271,7 @@ PROCEDURE test09DarDeAltaUnaFacturaQueYaExisteLanzaExcepcion()
 		excepcionLanzada = .t.
 	ENDTRY
 	
-	IF !excepcionLanzada
+	IF !excepcionLanzada 
 		THROW "[test09] dar de alta una factura ya existente debe lanzar excepcion"
 	ENDIF 
 ENDPROC

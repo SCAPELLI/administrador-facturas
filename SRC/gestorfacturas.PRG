@@ -13,12 +13,21 @@
 
 && ------------------- Funciones publicas ---------------------	
 
+&& ----------------------------------------	
+&& Se verifica que existan las tablas y en ese caso se generan 
+&& los registros asociados a la factura
+&& ----------------------------------------
 PROCEDURE darAlta(factura as Object)
 	verificarTablas()
 	commitFac(factura)
 	commitFacDet(factura)
 ENDFUNC 
 
+
+&& ----------------------------------------	
+&& Se verifica que existan las tablas y en ese caso se eliminan todos 
+&& los registros asociados a la factura
+&& ----------------------------------------
 PROCEDURE eliminar(factura as Object)
 	verificarTablas(.t.)
 	eliminarDeFacDet(factura)
@@ -55,8 +64,7 @@ FUNCTION buscarRegistro(factura as Object) as Boolean
 ENDPROC 
 
 && ----------------------------------------	
-&& Verifica que existan las tablas. De fallar la 
-&& verificacion se crearan en blanco.
+&& Verifica que existan las tablas. De fallar la verificacion se crearan en blanco.
 && ----------------------------------------
 PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 	IF !FILE(RUTA_FAC) OR !FILE(RUTA_FACDET)
@@ -94,6 +102,9 @@ PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 	ENDIF
 ENDPROC 
 
+&& ----------------------------------------	
+&& Se carga un nuevo registro en la tabla de facturas
+&& ----------------------------------------
 PROCEDURE commitFac(factura as Object)
 	registroEncontrado = .t.
 	TRY 
@@ -118,6 +129,9 @@ PROCEDURE commitFac(factura as Object)
 	ENDIF
 ENDPROC 
 
+&& ----------------------------------------	
+&& Por cada articulo de la factura se carga un registro en la tabla de detalles factura
+&& ----------------------------------------
 PROCEDURE commitFacDet(factura as Object)
 	detalleArticulos = factura.detalleArticulos 
 	TRY 
@@ -141,6 +155,9 @@ PROCEDURE commitFacDet(factura as Object)
 	ENDTRY 
 ENDPROC 
 
+&& ----------------------------------------	
+&& Se elimina el registro de la tabla de facturas
+&& ----------------------------------------
 PROCEDURE eliminarDeFac(factura as Object)
 	registroEncontrado = .t.
 	TRY 
@@ -161,6 +178,9 @@ PROCEDURE eliminarDeFac(factura as Object)
 	ENDIF 
 ENDPROC 
 
+&& ----------------------------------------	
+&& Se eliminan todos los registros asociados de la tabla de detalles de factura
+&& ----------------------------------------
 PROCEDURE eliminarDeFacDet(factura as Object)
 	TRY 
 		USE RUTA_FACDET IN 0 ALIAS "facDetTable" EXCLUSIVE
