@@ -37,8 +37,7 @@ ENDPROC
 && ------------------- Funciones privadas ---------------------	
 
 && ----------------------------------------	
-&& Busqueda por tupla: (punto de venta, letra, numero)
-&& retorna un booleano indicando si se encontro.
+&& Busqueda por tupla: (punto de venta, letra, numero). Retorna un booleano indicando si se encontro.
 && En caso de encontrarse: el cursor se posiciona en alguno de los registros coincidentes
 && ----------------------------------------
 FUNCTION buscarRegistro(factura as Object) as Boolean
