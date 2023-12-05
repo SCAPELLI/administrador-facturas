@@ -2,7 +2,7 @@
 #define DIRECTORIO_IDX "..\IDX\"
 #define DIRECTORIO_SRC "..\SRC"
 
-#define NOMBRE_FAC "fac.dbf"
+#define NOMBRE_FAC ("fac.dbf")
 #define RUTA_FAC (DIRECTORIO_DBF + NOMBRE_FAC)
 
 #define NOMBRE_FACDET "facdet.dbf"
@@ -42,23 +42,15 @@ ENDPROC
 && En caso de encontrarse: el cursor se posiciona en alguno de los registros coincidentes
 && ----------------------------------------
 FUNCTION buscarRegistro(factura as Object) as Boolean
-	* ERROR: 'set order to RUTA_INDICE_FAC' o 'set order to fac' da error.
-	* Como alternativa, elimino el indice y lo vuelvo a crear en cada busqueda 
-	* -----------------
-
-	IF FILE(RUTA_INDICE_FAC)
-		DELETE FILE RUTA_INDICE_FAC
-	ENDIF
-	
-	cd DIRECTORIO_IDX 
-	INDEX ON STR(fptoven) + fletra + STR(fnumcomp) TO fac
-	CD DIRECTORIO_SRC
-	* -----------------
+	TRY 
+		SET ORDER TO facIndex
+	CATCH
+		CD DIRECTORIO_DBF 
+		INDEX ON STR(fptoven) + fletra + STR(fnumcomp) tag facIndex
+		CD DIRECTORIO_SRC
+	ENDTRY
 	
 	SEEK STR(factura.puntoVenta) + factura.letra + STR(factura.numero)
-
-	CLOSE INDEXES
-	
 	
 	RETURN FOUND()
 ENDPROC 
@@ -82,7 +74,8 @@ PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 			fcodcli character(15), ;
 			ftotal numeric(15,2) ;
 		)
-
+		INDEX ON STR(fptoven) + fletra + STR(fnumcomp) tag facIndex
+		
 		CREATE TABLE FACDET ( ;
 			fptoven numeric(5), ;
 			fletra character(1), ;
@@ -96,7 +89,7 @@ PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 		)
 		
 		CD DIRECTORIO_SRC
-
+		 
 		USE IN ("FAC")
 		USE IN ("FACDET")
 	ENDIF
