@@ -87,6 +87,7 @@ PROCEDURE verificarTablas(lanzarExcepcionSiFaltanTablas as Boolean)
 			faliciva numeric(5,2), ;
 			fmonto numeric(15,2) ;
 		)
+		INDEX ON STR(fptoven) + fletra + STR(fnumcomp) tag facIndex
 		
 		CD DIRECTORIO_SRC
 		 
